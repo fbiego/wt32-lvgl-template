@@ -35,7 +35,6 @@
 #include <Arduino.h>
 #include "main.h"
 #include <lvgl.h>
-
 #include <LovyanGFX.hpp>
 #include <ESP32Time.h>
 
@@ -95,7 +94,7 @@ public:
       cfg.panel_height = 480;  // actual displayable height
       cfg.offset_x = 0;        // Panel offset in X direction
       cfg.offset_y = 0;        // Panel offset in Y direction
-#ifdef LANDSCAPE
+#ifdef PORTRAIT
       cfg.offset_rotation = 2;
 #else
       cfg.offset_rotation = 3;
@@ -202,7 +201,7 @@ public:
       cfg.panel_height = 480;  // actual displayable height
       cfg.offset_x = 0;        // Panel offset in X direction
       cfg.offset_y = 0;        // Panel offset in Y direction
-#ifdef LANDSCAPE
+#ifdef PORTRAIT
       cfg.offset_rotation = 0;
 #else
       cfg.offset_rotation = 1;
@@ -377,7 +376,10 @@ void setup()
     ui_init();
 #else
     lv_obj_t *label1 = lv_label_create(lv_scr_act());
-    lv_label_set_text(label1, "Hello world! You have not included UI files\n"
+    lv_obj_center(label1);
+    lv_label_set_long_mode(label1, LV_LABEL_LONG_WRAP);
+    lv_obj_set_width(label1, 300);
+    lv_label_set_text(label1, "Hello world! You have not included UI files "
                               "Uncomment this line //#define USE_UI");
 #endif
 

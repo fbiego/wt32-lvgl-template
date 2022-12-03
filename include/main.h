@@ -31,13 +31,13 @@
 */
 
 
-#define LANDSCAPE // comment for portrait
+#define PORTRAIT // comment for landscape
 // #define USE_UI  // uncomment to use ui files exported on /ui/ folder from squareline studio
 
 
 
 /* Change to your screen resolution */
-#ifdef LANDSCAPE
+#ifdef PORTRAIT
 static const uint32_t screenWidth = 320;
 static const uint32_t screenHeight = 480;
 #else
