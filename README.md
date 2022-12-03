@@ -21,6 +21,6 @@ With SquareLine studio you can create ui using drag and drop. The source code ca
 
 #### Exporting the UI
 
-- Export the UI files from SquareLine to /ui/ folder
-- In `main.cpp`, uncomment the line `// #define USE_UI` to use the exported UI files
-- In `ui.h`, change `#include "lvgl/lvgl.h"` to `#include "lvgl.h"`
+- Export the UI files from SquareLine to src/ui/ folder
+- In `src/main.cpp`, uncomment the line `// #define USE_UI` to use the exported UI files
+- In `src/ui/ui.h`, change `#include "lvgl/lvgl.h"` to `#include "lvgl.h"`
