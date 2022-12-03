@@ -9,7 +9,8 @@ Default build environment is `wt32-sc01-plus`
 
 ### SquareLine Studio
 
-[Download Link](https://squareline.io/)
+[`Download Link`](https://squareline.io/)
+
 With SquareLine studio you can create ui using drag and drop. The source code can be exported for use on the hardware.
 
 #### Create a project
