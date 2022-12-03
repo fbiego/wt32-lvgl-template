@@ -30,12 +30,10 @@
 
 */
 
-#define LANDSCAPE // comment for portrait
-// #define USE_UI  // uncomment to use ui files exported on /ui/ folder from squareline studio
-
 #define LGFX_USE_V1
 
 #include <Arduino.h>
+#include "main.h"
 #include <lvgl.h>
 
 #include <LovyanGFX.hpp>
@@ -274,14 +272,6 @@ FT6336U ft6336u(18, 19, -1, 36);
 // Create an instance of the prepared class.
 LGFX tft;
 
-/* Change to your screen resolution */
-#ifdef LANDSCAPE
-static const uint32_t screenWidth = 320;
-static const uint32_t screenHeight = 480;
-#else
-static const uint32_t screenWidth = 480;
-static const uint32_t screenHeight = 320;
-#endif
 
 static lv_disp_draw_buf_t draw_buf;
 static lv_disp_drv_t disp_drv;
