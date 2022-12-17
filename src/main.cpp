@@ -159,7 +159,7 @@ class LGFX : public lgfx::LGFX_Device
 
   lgfx::Light_PWM _light_instance;
 
-  // lgfx::Touch_FT5x06 _touch_instance;
+  lgfx::Touch_FT5x06 _touch_instance;
 
 public:
   LGFX(void)
@@ -171,7 +171,7 @@ public:
       cfg.spi_host = VSPI_HOST; // Select the SPI to use ESP32-S2,C3 : SPI2_HOST or SPI3_HOST / ESP32 : VSPI_HOST or HSPI_HOST
       // * With the ESP-IDF version upgrade, VSPI_HOST and HSPI_HOST descriptions are deprecated, so if an error occurs, use SPI2_HOST and SPI3_HOST instead.
       cfg.spi_mode = 3;                  // Set SPI communication mode (0 ~ 3)
-      cfg.freq_write = 27000000;         // SPI clock when sending (up to 80MHz, rounded to 80MHz divided by an integer)
+      cfg.freq_write = 40000000;         // SPI clock when sending (up to 80MHz, rounded to 80MHz divided by an integer)
       cfg.freq_read = 6000000;           // SPI clock when receiving
       cfg.spi_3wire = false;             // set to true if receiving on MOSI pin
       cfg.use_lock = true;               // set to true to use transaction lock
@@ -229,48 +229,36 @@ public:
       _panel_instance.setLight(&_light_instance); // Sets the backlight to the panel.
     }
 
-    // { // Configure settings for touch screen control. (delete if not necessary)
-    //    auto cfg = _touch_instance.config();
+    { // Configure settings for touch screen control. (delete if not necessary)
+      auto cfg = _touch_instance.config();
 
-    //    cfg.x_min = 0;    // Minimum X value (raw value) obtained from the touchscreen
-    //    cfg.x_max = 319;  // Maximum X value (raw value) obtained from the touchscreen
-    //    cfg.y_min = 0;    // Minimum Y value obtained from touchscreen (raw value)
-    //    cfg.y_max = 479;  // Maximum Y value (raw value) obtained from the touchscreen
-    //    cfg.pin_int = 36; // pin number to which INT is connected
-    //    cfg.bus_shared = false;
-    //    cfg.offset_rotation = 0;
+      cfg.x_min = 0;    // Minimum X value (raw value) obtained from the touchscreen
+      cfg.x_max = 319;  // Maximum X value (raw value) obtained from the touchscreen
+      cfg.y_min = 0;    // Minimum Y value obtained from touchscreen (raw value)
+      cfg.y_max = 479;  // Maximum Y value (raw value) obtained from the touchscreen
+      cfg.pin_int = 39; // pin number to which INT is connected
+      cfg.bus_shared = false;
+      cfg.offset_rotation = 0;
 
-    //    // For I2C connection
-    //    cfg.i2c_port = 0;    // Select I2C to use (0 or 1)
-    //    cfg.i2c_addr = 0x38; // I2C device address number
-    //    cfg.pin_sda = 18;    // pin number where SDA is connected
-    //    cfg.pin_scl = 19;    // pin number to which SCL is connected
-    //    cfg.freq = 400000;   // set I2C clock
+      // For I2C connection
+      cfg.i2c_port = 1;    // Select I2C to use (0 or 1)
+      cfg.i2c_addr = 0x38; // I2C device address number
+      cfg.pin_sda = 18;    // pin number where SDA is connected
+      cfg.pin_scl = 19;    // pin number to which SCL is connected
+      cfg.freq = 400000;   // set I2C clock
 
-    //    _touch_instance.config(cfg);
-    //    _panel_instance.setTouch(&_touch_instance); // Set the touchscreen to the panel.
-    // }
+      _touch_instance.config(cfg);
+      _panel_instance.setTouch(&_touch_instance); // Set the touchscreen to the panel.
+    }
 
     setPanel(&_panel_instance); // Sets the panel to use.
   }
 };
 
-struct TouchData
-{
-  int xpos;
-  int ypos;
-  int event;
-} touch_data;
-
-#include "FT6336U.h"
-
-FT6336U ft6336u(18, 19, -1, 36);
-
 #endif
 
 // Create an instance of the prepared class.
 LGFX tft;
-
 
 static lv_disp_draw_buf_t draw_buf;
 static lv_disp_drv_t disp_drv;
@@ -294,7 +282,6 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 /*Read the touchpad*/
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
 {
-#ifdef PLUS
   uint16_t touchX, touchY;
 
   bool touched = tft.getTouch(&touchX, &touchY);
@@ -311,19 +298,6 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
     data->point.x = touchX;
     data->point.y = touchY;
   }
-#else
-  data->point.x = touch_data.xpos;
-  data->point.y = touch_data.ypos;
-
-  if (touch_data.event == 1)
-  {
-    data->state = LV_INDEV_STATE_PR;
-  }
-  else
-  {
-    data->state = LV_INDEV_STATE_REL;
-  }
-#endif
 }
 
 void setup()
@@ -333,11 +307,6 @@ void setup()
   tft.init();
   tft.initDMA();
   tft.startWrite();
-
-#ifndef PLUS
-  ft6336u.begin();
-
-#endif
 
   lv_init();
   Serial.print("Width: ");
@@ -376,11 +345,17 @@ void setup()
     ui_init();
 #else
     lv_obj_t *label1 = lv_label_create(lv_scr_act());
-    lv_obj_center(label1);
+    lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 100);
     lv_label_set_long_mode(label1, LV_LABEL_LONG_WRAP);
-    lv_obj_set_width(label1, 300);
-    lv_label_set_text(label1, "Hello world! You have not included UI files "
-                              "Uncomment this line //#define USE_UI");
+    lv_obj_set_width(label1, screenWidth - 30);
+    lv_label_set_text(label1, "Hello there! You have not included UI files, add you UI files and "
+                              "uncomment this line\n'//#define USE_UI' in include/main.h\n"
+                              "You should be able to move the slider below");
+
+    /*Create a slider below the label*/
+    lv_obj_t *slider1 = lv_slider_create(lv_scr_act());
+    lv_obj_set_width(slider1, screenWidth - 40);
+    lv_obj_align_to(slider1, label1, LV_ALIGN_OUT_BOTTOM_MID, 0, 50);
 #endif
 
     Serial.println("Setup done");
