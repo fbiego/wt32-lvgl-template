@@ -37,6 +37,7 @@
 #include <lvgl.h>
 #include <LovyanGFX.hpp>
 #include <ESP32Time.h>
+#include <Timber.h>
 
 #ifdef USE_UI
 #include "ui/ui.h"
@@ -300,28 +301,39 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
   }
 }
 
+void logCallback(Level level, unsigned long time, String message)
+{
+  Serial.print(message);
+
+  switch (level)
+  {
+  case ERROR:
+    // maybe save only errors to local storage
+    break;
+  }
+}
+
 void setup()
 {
   Serial.begin(115200);
+
+  Timber.setLogCallback(logCallback);
 
   tft.init();
   tft.initDMA();
   tft.startWrite();
 
   lv_init();
-  Serial.print("Width: ");
-  Serial.print(screenWidth);
-  Serial.print("\tHeight: ");
-  Serial.println(screenHeight);
+
+  Timber.i("Width %d\tHeight %d", screenWidth, screenHeight);
 
   if (!disp_draw_buf)
   {
-    Serial.println("LVGL disp_draw_buf allocate failed!");
+    Timber.e("LVGL disp_draw_buf allocate failed!");
   }
   else
   {
 
-    Serial.print("Display buffer size: ");
 
     lv_disp_draw_buf_init(&draw_buf, disp_draw_buf, disp_draw_buf2, screenWidth * SCR);
 
@@ -358,7 +370,7 @@ void setup()
     lv_obj_align_to(slider1, label1, LV_ALIGN_OUT_BOTTOM_MID, 0, 50);
 #endif
 
-    Serial.println("Setup done");
+    Timber.i("Setup done");
   }
 }
 
